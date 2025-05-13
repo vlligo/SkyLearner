@@ -11,9 +11,11 @@ class QuizSpecsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_specs)
 
-        val quiz = intent.getParcelableExtra<Quiz>("SELECTED_QUIZ") ?: return
+        val quiz = intent.getParcelableExtra("SELECTED_QUIZ", Quiz::class.java) ?: run {
+            finish()  // Close activity if no quiz data
+            return
+        }
 
-        // Initialize views properly
         findViewById<TextView>(R.id.quizTitle).text = quiz.title
         findViewById<TextView>(R.id.quizDescription).text = quiz.description
         findViewById<TextView>(R.id.questionsCount).text = "Questions: ${quiz.questionsCount}"
