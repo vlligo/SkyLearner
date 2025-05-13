@@ -23,6 +23,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".QuizSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AstroGuessr"/>
+        <activity
+            android:name=".QuizSpecsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AstroGuessr"/>
+        <activity
+            android:name=".QuizActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AstroGuessr"/>
     </application>
 
 </manifest>
