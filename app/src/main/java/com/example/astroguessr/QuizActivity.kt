@@ -1,5 +1,6 @@
 package com.example.astroguessr
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
@@ -19,7 +20,12 @@ class QuizActivity : AppCompatActivity() {
         setContentView(R.layout.activity_quiz)
 
         // Modern Parcelable API with class parameter
-        currentQuiz = intent.getParcelableExtra("SELECTED_QUIZ", Quiz::class.java) ?: run {
+        currentQuiz = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("SELECTED_QUIZ", Quiz::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("SELECTED_QUIZ")
+        } ?: run {
             finish()
             return
         }
@@ -36,15 +42,18 @@ class QuizActivity : AppCompatActivity() {
                 currentQuestionIndex++
                 setupQuestion()
             } else {
-                Toast.makeText(this, "Quiz Completed!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.quiz_completed), Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
     }
 
     private fun setupQuestion() {
-        // Use already initialized views
-        questionText.text = "Question ${currentQuestionIndex + 1}"
+        questionText.text = getString(
+            R.string.question_progress,
+            currentQuestionIndex + 1,
+            currentQuiz.questionsCount
+        )
         progressBar.progress =
             ((currentQuestionIndex + 1) * 100) / currentQuiz.questionsCount
     }

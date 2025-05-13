@@ -70,7 +70,8 @@ class QuizAdapter(
             itemView.apply {
                 findViewById<TextView>(R.id.quizTitle).text = quiz.title
                 findViewById<TextView>(R.id.quizDescription).text = quiz.description
-                findViewById<TextView>(R.id.topics).text = "Spec: ${quiz.topics.joinToString(", ")}"
+                findViewById<TextView>(R.id.topics).text =
+                    context.getString(R.string.topics_list, quiz.topics.joinToString(", "))
                 setOnClickListener { onItemClick(quiz) }
             }
         }
