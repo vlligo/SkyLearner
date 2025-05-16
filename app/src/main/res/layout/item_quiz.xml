@@ -34,6 +34,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/quizDescription"/>
 
+    <TextView
+        android:id="@+id/quizScore"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topics"/>
+
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -41,6 +51,6 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topics"/>
+        app:layout_constraintTop_toBottomOf="@id/quizScore"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

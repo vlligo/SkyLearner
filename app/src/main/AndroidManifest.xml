@@ -15,7 +15,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AstroGuessr">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,6 +32,14 @@
             android:theme="@style/Theme.AstroGuessr"/>
         <activity
             android:name=".QuizActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AstroGuessr"/>
+        <activity
+            android:name=".AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AstroGuessr"/>
+        <activity
+            android:name=".SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.AstroGuessr"/>
     </application>

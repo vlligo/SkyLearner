@@ -3,6 +3,14 @@
     <string name="questions_count">Questions: %d</string>
     <string name="topics_list">Spec: %s</string>
     <string name="question_progress">Question %1$d of %2$d</string>
-    <string name="quiz_completed">Quiz Completed!</string>
+    <string name="quiz_completed">Quiz Completed! Score: %d%%</string>
     <string name="next">Next</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="change_password">Change Password</string>
+    <string name="logout">Log Out</string>
+    <string name="best_score">Best Score: %1$d%%</string>
+    <string name="start_quiz">Start Quiz</string>
 </resources>

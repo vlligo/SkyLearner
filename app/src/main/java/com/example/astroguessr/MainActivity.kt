@@ -21,11 +21,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.astroguessr.ui.theme.AstroGuessrTheme
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : ComponentActivity() {
+    private val auth = Firebase.auth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         setContent {
             AstroGuessrTheme {
@@ -53,7 +64,7 @@ fun AppScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "AstroGuessr",
+                text = "Sky Learner",
                 style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 32.dp)
@@ -69,10 +80,12 @@ fun AppScreen() {
             }
 
             Button(
-                onClick = { /* Add other functionality */ },
+                onClick = {
+                    context.startActivity(Intent(context, SettingsActivity::class.java))
+                },
                 modifier = Modifier.padding(8.dp)
             ) {
-                Text("Learning Mode")
+                Text("Account Settings")
             }
         }
     }
