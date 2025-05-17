@@ -27,6 +27,10 @@ class AuthActivity : AppCompatActivity() {
         val email = binding.etEmail.text.toString()
         val password = binding.etPassword.text.toString()
 
+        if (email.isBlank() || password.isBlank()) {
+            showError("Please fill in all fields")
+            return
+        }
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -41,6 +45,10 @@ class AuthActivity : AppCompatActivity() {
         val email = binding.etEmail.text.toString()
         val password = binding.etPassword.text.toString()
 
+        if (email.isBlank() || password.isBlank()) {
+            showError("Please fill in all fields")
+            return
+        }
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {

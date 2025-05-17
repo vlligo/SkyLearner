@@ -27,7 +27,7 @@ class QuizSpecsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.quizTitle).text = quiz.title
         findViewById<TextView>(R.id.quizDescription).text = quiz.description
         findViewById<TextView>(R.id.questionsCount).text =
-            getString(R.string.questions_count, quiz.questionsCount)
+            getString(R.string.questions_count, quiz.questions.size)
 
         findViewById<TextView>(R.id.topics).text =
             getString(R.string.topics_list, quiz.topics.joinToString(", "))

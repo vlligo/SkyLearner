@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class QuizActivity : AppCompatActivity() {
     private lateinit var currentQuiz: Quiz
@@ -46,7 +47,7 @@ class QuizActivity : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             checkAnswer() // Check answer before moving to next question
-            if (currentQuestionIndex < currentQuiz.questionsCount - 1) {
+            if (currentQuestionIndex < currentQuiz.questions.size - 1) {
                 currentQuestionIndex++
                 setupQuestion()
             } else {
@@ -60,10 +61,10 @@ class QuizActivity : AppCompatActivity() {
         questionText.text = getString(
             R.string.question_progress,
             currentQuestionIndex + 1,
-            currentQuiz.questionsCount
+            currentQuiz.questions.size
         )
         progressBar.progress =
-            ((currentQuestionIndex + 1) * 100) / currentQuiz.questionsCount
+            ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
     }
 
     private fun checkAnswer() {
@@ -74,15 +75,11 @@ class QuizActivity : AppCompatActivity() {
 
     private fun saveProgress() {
         val user = auth.currentUser ?: return
-        val score = (correctAnswers * 100) / currentQuiz.questionsCount
-
-        val updates = hashMapOf<String, Any>(
-            "quizScores.${currentQuiz.id}" to score
-        )
+        val score = (correctAnswers * 100) / currentQuiz.questions.size
 
         db.collection("user_progress")
             .document(user.uid)
-            .update(updates)
+            .set(mapOf("quizScores.${currentQuiz.id}" to score), SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Progress saved! Score: $score%", Toast.LENGTH_SHORT).show()
             }
