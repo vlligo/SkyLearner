@@ -17,9 +17,9 @@ class QuizManager(private val starRepository: StarRepository) {
                 val nearbyStars = starRepository.getStarsNear(
                     ra = targetStar.ra,
                     dec = targetStar.dec,
-                    radius = 2.0,
+                    radius = 50.0,
                     excludeId = targetStar.id,
-                    count = 3
+                    count = 100000000
                 )
 
                 if (nearbyStars.size < 3) {

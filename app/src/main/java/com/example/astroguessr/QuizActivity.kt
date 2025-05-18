@@ -83,11 +83,14 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
                 val targetStar = starRepository.getStarById(currentQuestion.targetStarId)
                     ?: throw Exception("Target star not found")
 
-                // Use the pre-loaded options from the question
-                starChart.setStars(currentQuestion.options)
-                questionText.text = "Find: ${targetStar.name ?: targetStar.bayer}"
-                progressBar.progress = ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
-
+                withContext(Dispatchers.Main) {
+                    // Wait for view layout before setting stars
+                    starChart.post {
+                        starChart.setStars(currentQuestion.options)
+                        questionText.text = "Find: ${targetStar.name ?: targetStar.bayer}"
+                        progressBar.progress = ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
+                    }
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@QuizActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
