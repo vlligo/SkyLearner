@@ -30,7 +30,7 @@ class QuizSpecsActivity : AppCompatActivity() {
             getString(R.string.questions_count, quiz.questions.size)
 
         findViewById<TextView>(R.id.topics).text =
-            getString(R.string.topics_list, quiz.topics.joinToString(", "))
+            getString(R.string.topics_list, quiz.constellation)
 
         findViewById<Button>(R.id.startQuizButton).setOnClickListener {
             Intent(this, QuizActivity::class.java).apply {

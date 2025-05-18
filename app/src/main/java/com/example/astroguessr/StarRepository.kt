@@ -26,4 +26,22 @@ class StarRepository(private val context: Context) {
             db.starDao().getStarById(id)
         }
     }
+
+    suspend fun getStarsNear(
+        ra: Double,
+        dec: Double,
+        radius: Double,
+        excludeId: Int,
+        count: Int
+    ): List<Star> {
+        return withContext(Dispatchers.IO) {
+            db.starDao().getStarsNear(
+                ra = ra,
+                dec = dec,
+                radius = radius,
+                excludeId = excludeId,
+                count = count
+            )
+        }
+    }
 }

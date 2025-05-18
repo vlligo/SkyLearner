@@ -81,42 +81,30 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
             try {
                 val currentQuestion = currentQuiz.questions[currentQuestionIndex]
                 val targetStar = starRepository.getStarById(currentQuestion.targetStarId)
-                val optionStars = currentQuestion.optionIds.mapNotNull { id ->
-                    starRepository.getStarById(id)
-                }
+                    ?: throw Exception("Target star not found")
 
-                withContext(Dispatchers.Main) {
-                    if (targetStar == null || optionStars.isEmpty()) {
-                        Toast.makeText(this@QuizActivity, "Error loading stars!", Toast.LENGTH_SHORT).show()
-                        finish()
-                        return@withContext
-                    }
+                // Use the pre-loaded options from the question
+                starChart.setStars(currentQuestion.options)
+                questionText.text = "Find: ${targetStar.name ?: targetStar.bayer}"
+                progressBar.progress = ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
 
-                    starChart.setStars(optionStars)
-                    questionText.text = getString(
-                        R.string.question_progress,
-                        currentQuestionIndex + 1,
-                        currentQuiz.questions.size
-                    )
-                    progressBar.progress = ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
-                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@QuizActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
             }
         }
     }
 
+
     override fun onStarSelected(star: Star) {
         selectedStar = star
     }
 
-    // Marked as suspend
     private suspend fun checkAnswer() {
         val currentQuestion = currentQuiz.questions[currentQuestionIndex]
-        val targetStar = starRepository.getStarById(currentQuestion.targetStarId)
-        val isCorrect = selectedStar?.id == targetStar?.id
+        val isCorrect = selectedStar?.id == currentQuestion.targetStarId
         if (isCorrect) correctAnswers++
         selectedStar = null
     }

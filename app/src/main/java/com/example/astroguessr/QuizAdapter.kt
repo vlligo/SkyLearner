@@ -36,7 +36,7 @@ class QuizAdapter(
                     context.getString(R.string.best_score, scores[quiz.id] ?: 0)
 
                 findViewById<TextView>(R.id.topics).text =
-                    context.getString(R.string.topics_list, quiz.topics.joinToString(", "))
+                    context.getString(R.string.topics_list, quiz.constellation)
 
                 setOnClickListener { onItemClick(quiz) }
             }

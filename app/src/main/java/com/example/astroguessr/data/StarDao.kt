@@ -13,4 +13,21 @@ interface StarDao {
 
     @Query("SELECT * FROM stars WHERE con = :constellation ORDER BY mag")
     suspend fun getStarsByConstellation(constellation: String): List<Star>
+
+    @Query("""
+        SELECT * FROM stars 
+        WHERE 
+            ABS(ra - :ra) < :radius AND 
+            ABS(dec - :dec) < :radius AND
+            id != :excludeId
+        ORDER BY mag
+        LIMIT :count
+    """)
+    suspend fun getStarsNear(
+        ra: Double,
+        dec: Double,
+        radius: Double,
+        excludeId: Int,
+        count: Int
+    ): List<Star>
 }
