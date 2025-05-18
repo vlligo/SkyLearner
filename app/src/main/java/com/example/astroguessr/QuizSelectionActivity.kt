@@ -1,14 +1,16 @@
 package com.example.astroguessr
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.content.Intent
+import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class QuizSelectionActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -26,7 +28,7 @@ class QuizSelectionActivity : AppCompatActivity() {
 
     private fun loadProgress() {
         val user = auth.currentUser ?: run {
-            setupAdapter(emptyMap())
+            setupAdapter(emptyList(), emptyMap())
             return
         }
 
@@ -35,58 +37,52 @@ class QuizSelectionActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { document ->
                 val progress = document.toObject(UserProgress::class.java)
-                setupAdapter(progress?.quizScores ?: emptyMap())
+                loadQuizzes(progress?.quizScores ?: emptyMap())
             }
     }
 
     private fun loadQuizzes(scores: Map<String, Int>) {
-        db.collection("quizzes")
-            .get()
-            .addOnSuccessListener { result ->
-                val quizzes = result.toObjects(Quiz::class.java)
-//                setupAdapter(quizzes, scores)
+        lifecycleScope.launch {
+            try {
+                val quizManager = QuizManager(StarRepository(this@QuizSelectionActivity))
+                val constellationQuiz = quizManager.generateConstellationQuiz("CMa")
+                if (constellationQuiz.questions.isEmpty()) {
+                    Toast.makeText(
+                        this@QuizSelectionActivity,
+                        "No questions found!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                setupAdapter(listOf(constellationQuiz), scores)
+            } catch (e: Exception) {
+                e.message?.let { Log.e("TAG", it) }
+                Toast.makeText(
+                    this@QuizSelectionActivity,
+                    "Failed to load quizzes: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error loading quizzes: ${e.message}", Toast.LENGTH_SHORT).show()
-                setupAdapter(emptyMap())
-            }
+        }
     }
 
-    private fun setupAdapter(scores: Map<String, Int>) {
-        val quizzes = listOf(
-            Quiz(
-                id = "constellations_1",
-                title = "Northern Constellations",
-                description = "Identify stars in northern hemisphere constellations",
-                topics = listOf("Northern"),
-                questions = generateQuestionsForConstellation("UMa") // Ursa Major example
-            )
-        )
-
+    private fun setupAdapter(quizzes: List<Quiz>, scores: Map<String, Int>) {
+        if (quizzes.isEmpty()) {
+            Toast.makeText(this, "No quizzes available!", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         val recyclerView = findViewById<RecyclerView>(R.id.quizzesRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this@QuizSelectionActivity)
         recyclerView.adapter = QuizAdapter(
             quizzes = quizzes,
             scores = scores,
-            onItemClick = { selectedQuiz: Quiz ->  // Add explicit type here
-                Intent(this, QuizSpecsActivity::class.java).apply {
+            onItemClick = { selectedQuiz ->
+                Intent(this@QuizSelectionActivity, QuizSpecsActivity::class.java).apply {
                     putExtra("SELECTED_QUIZ", selectedQuiz)
                     startActivity(this)
                 }
             }
         )
-
-    }
-    private fun generateQuestionsForConstellation(constellation: String): List<Question> {
-        val repo = StarRepository()
-        val stars = runBlocking { repo.getStarsByConstellation(constellation) }
-
-        return stars.take(10).map { star ->
-            Question(
-                targetStar = star,
-                options = listOf(star) + stars.filterNot { it.id == star.id }.shuffled().take(3)
-            )
-        }
     }
 }

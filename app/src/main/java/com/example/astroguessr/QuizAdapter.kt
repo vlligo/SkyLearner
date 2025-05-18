@@ -26,6 +26,7 @@ class QuizAdapter(
 
     inner class QuizViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(quiz: Quiz) {
+            if (quiz.questions.isEmpty()) return
             itemView.apply {
                 findViewById<TextView>(R.id.quizTitle).text = quiz.title
                 findViewById<TextView>(R.id.quizDescription).text = quiz.description

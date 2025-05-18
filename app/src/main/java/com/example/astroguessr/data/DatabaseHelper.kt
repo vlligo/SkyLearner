@@ -1,12 +1,10 @@
-package com.example.astroguessr
+package com.example.astroguessr.data
 
 import android.content.Context
-import com.example.astroguessr.data.AppDatabase
-import com.example.astroguessr.data.Star
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StarRepository(private val context: Context) {
+class DatabaseHelper(context: Context) {
     private val db = AppDatabase.create(context)
 
     suspend fun getStarsByConstellation(constellation: String): List<Star> {
@@ -15,15 +13,15 @@ class StarRepository(private val context: Context) {
         }
     }
 
-    suspend fun getRandomStars(count: Int, excludeId: Int): List<Star> {
+    suspend fun getRandomQuestion(): Star {
         return withContext(Dispatchers.IO) {
-            db.starDao().getRandomStars(count, excludeId)
+            db.starDao().getRandomStars(1, 0).first()
         }
     }
 
-    suspend fun getStarById(id: Int): Star? {
+    suspend fun getWrongAnswers(correctId: Int, count: Int = 3): List<Star> {
         return withContext(Dispatchers.IO) {
-            db.starDao().getStarById(id)
+            db.starDao().getRandomStars(count, correctId)
         }
     }
 }
