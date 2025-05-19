@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.firebase.firestore.IgnoreExtraProperties
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 import com.example.astroguessr.data.Star
 
 @Keep
@@ -24,7 +23,7 @@ data class Quiz(
 @Parcelize
 data class Question(
     var targetStarId: Int = 0,
-    var options: List<@RawValue Star> = emptyList()
+    var options: List<Star> = emptyList()
 ) : Parcelable {
     constructor() : this(0, emptyList())
 }

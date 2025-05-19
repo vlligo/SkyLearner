@@ -10,8 +10,6 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.astroguessr.data.Star
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 class StarChartView @JvmOverloads constructor(
     context: Context,
@@ -55,10 +53,8 @@ class StarChartView @JvmOverloads constructor(
     private var selectedStar: Star? = null
 
     // Magnitude visualization parameters
-    private val minMagnitude = -1.5f  // Brightest stars
-    private val maxMagnitude = 6.0f    // Faintest visible
     private val baseStarSize = 1f     // Size for magnitude 0 star
-    private val sizeRange = 20f        // Max size variation
+    private val sizeRange = 15f        // Max size variation
 
     init {
         viewTreeObserver.addOnGlobalLayoutListener {
@@ -137,13 +133,6 @@ class StarChartView @JvmOverloads constructor(
             return
         }
 
-        // Draw debug background
-        canvas.drawColor(Color.BLACK)
-        canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), Paint().apply {
-            color = Color.RED
-            strokeWidth = 2f
-        })
-
         if (stars.isEmpty()) {
             Log.w("StarChart", "No stars to draw")
             return
@@ -170,7 +159,7 @@ class StarChartView @JvmOverloads constructor(
         val size = getStarSize(star.mag)
 
         // Set star color based on magnitude
-        starPaint.color = getStarColor(star.mag)
+        starPaint.color = getStarColor()
 
         // Draw star body
         canvas.drawCircle(x, y, size, starPaint)
@@ -194,7 +183,7 @@ class StarChartView @JvmOverloads constructor(
         return baseStarSize + (normalized.coerceIn(0f, 1f) * sizeRange)
     }
 
-    private fun getStarColor(mag: Float): Int {
+    private fun getStarColor(): Int {
         return Color.WHITE
     }
 
@@ -212,14 +201,10 @@ class StarChartView @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
-    private fun findStarAt(x: Float, y: Float): Star? {
-        return stars.minByOrNull { star ->
+    private fun findStarAt(x: Float, y: Float): Star {
+        return stars.minBy { star ->
             val (sx, sy) = getStarCoordinates(star)
             abs(sx - x) + abs(sy - y)
-        }?.takeIf { star ->
-            val (sx, sy) = getStarCoordinates(star)
-            val distance = abs(sx - x) + abs(sy - y)
-            distance < getStarSize(star.mag) * 2
         }
     }
 

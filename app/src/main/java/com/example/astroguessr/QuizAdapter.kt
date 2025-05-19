@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class QuizAdapter(
     private val quizzes: List<Quiz>,
-    private val scores: Map<String, Int>,  // Added scores parameter
+    private val scores: Map<String, Int>,
     private val onItemClick: (Quiz) -> Unit
 ) : RecyclerView.Adapter<QuizAdapter.QuizViewHolder>() {
 

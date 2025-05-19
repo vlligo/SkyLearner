@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 
 class QuizSpecsActivity : AppCompatActivity() {
     @SuppressLint("NewApi", "Deprecation")
@@ -33,6 +34,10 @@ class QuizSpecsActivity : AppCompatActivity() {
             getString(R.string.topics_list, quiz.constellation)
 
         findViewById<Button>(R.id.startQuizButton).setOnClickListener {
+            if (quiz.questions.isEmpty()) {
+                Toast.makeText(this, "No valid questions!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             Intent(this, QuizActivity::class.java).apply {
                 putExtra("SELECTED_QUIZ", quiz)
                 startActivity(this)

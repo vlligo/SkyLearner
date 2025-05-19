@@ -12,8 +12,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.DocumentSnapshot
 
 class QuizSelectionActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -81,12 +79,6 @@ class QuizSelectionActivity : AppCompatActivity() {
 
                 val firebaseQuizzes = result.toObjects(Quiz::class.java).also {
                     Log.d("Firestore", "Deserialized ${it.size} quizzes")
-                }
-
-                // Add debug logging for raw documents
-                result.documents.forEach { doc ->
-                    Log.d("FirestoreDoc", "Document ID: ${doc.id}")
-                    Log.d("FirestoreDoc", "Data: ${doc.data}")
                 }
                 val validQuizzes = mutableListOf<Quiz>()
 

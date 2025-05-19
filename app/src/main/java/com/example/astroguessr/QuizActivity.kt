@@ -87,7 +87,8 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
                     // Wait for view layout before setting stars
                     starChart.post {
                         starChart.setStars(currentQuestion.options)
-                        questionText.text = "Find: ${targetStar.name ?: targetStar.bayer}"
+                        questionText.text =
+                            getString(R.string.find, targetStar.name ?: targetStar.bayer)
                         progressBar.progress = ((currentQuestionIndex + 1) * 100) / currentQuiz.questions.size
                     }
                 }
@@ -105,7 +106,7 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
         selectedStar = star
     }
 
-    private suspend fun checkAnswer() {
+    private fun checkAnswer() {
         val currentQuestion = currentQuiz.questions[currentQuestionIndex]
         val isCorrect = selectedStar?.id == currentQuestion.targetStarId
         if (isCorrect) correctAnswers++
@@ -115,10 +116,9 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
     private fun saveProgress() {
         val user = auth.currentUser ?: return
         val score = (correctAnswers * 100) / currentQuiz.questions.size
-
         db.collection("user_progress")
             .document(user.uid)
-            .set(mapOf("quizScores.${currentQuiz.id}" to score), SetOptions.merge())
+            .set(UserProgress(userId = user.uid, quizScores = mapOf(currentQuiz.id to score)), SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Progress saved! Score: $score%", Toast.LENGTH_SHORT).show()
             }
