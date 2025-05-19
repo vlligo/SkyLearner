@@ -14,9 +14,8 @@ data class Quiz(
     var title: String = "",
     var description: String = "",
     var questions: List<Question> = emptyList(),
-    var constellation: String = ""
 ) : Parcelable {
-    constructor() : this("", "", "", emptyList(), "")
+    constructor() : this("", "", "", emptyList())
 }
 
 @Keep

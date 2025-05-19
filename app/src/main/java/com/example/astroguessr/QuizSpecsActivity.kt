@@ -30,16 +30,14 @@ class QuizSpecsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.questionsCount).text =
             getString(R.string.questions_count, quiz.questions.size)
 
-        findViewById<TextView>(R.id.topics).text =
-            getString(R.string.topics_list, quiz.constellation)
-
         findViewById<Button>(R.id.startQuizButton).setOnClickListener {
             if (quiz.questions.isEmpty()) {
                 Toast.makeText(this, "No valid questions!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             Intent(this, QuizActivity::class.java).apply {
-                putExtra("SELECTED_QUIZ", quiz)
+                val shuffledQuiz = quiz.copy(questions = quiz.questions.shuffled())
+                putExtra("SELECTED_QUIZ", shuffledQuiz)
                 startActivity(this)
             }
         }
