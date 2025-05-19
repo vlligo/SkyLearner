@@ -18,6 +18,8 @@ class StarChartView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private var isInitialized = false
     private var pendingStars: List<Star> = emptyList()
+    private var correctStarId: Int? = null
+    private var selectedStarId: Int? = null
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -69,6 +71,12 @@ class StarChartView @JvmOverloads constructor(
         }
     }
 
+    fun showFeedback(correctStarId: Int?, selectedStarId: Int?) {
+        this.correctStarId = correctStarId
+        this.selectedStarId = selectedStarId
+        this.selectedStar = null
+        invalidate() // Redraw with highlights
+    }
 
     fun setStars(stars: List<Star>) {
         if (isInitialized) {
@@ -143,6 +151,7 @@ class StarChartView @JvmOverloads constructor(
 
         // Draw all stars
         stars.forEach { star ->
+            starPaint.color = getStarColor(star)
             drawStar(star, canvas)
         }
 
@@ -159,7 +168,7 @@ class StarChartView @JvmOverloads constructor(
         val size = getStarSize(star.mag)
 
         // Set star color based on magnitude
-        starPaint.color = getStarColor()
+        starPaint.color = getStarColor(star)
 
         // Draw star body
         canvas.drawCircle(x, y, size, starPaint)
@@ -183,17 +192,23 @@ class StarChartView @JvmOverloads constructor(
         return baseStarSize + (normalized.coerceIn(0f, 1f) * sizeRange)
     }
 
-    private fun getStarColor(): Int {
-        return Color.WHITE
+    private fun getStarColor(star: Star): Int {
+        return when {
+            star.id == correctStarId -> Color.GREEN
+            star.id == selectedStarId -> Color.RED
+            else -> Color.WHITE
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                selectedStar = findStarAt(event.x, event.y)
-                selectedStar?.let {
-                    onStarSelectedListener?.onStarSelected(it)
-                    invalidate()
+                if (correctStarId == null) {
+                    selectedStar = findStarAt(event.x, event.y)
+                    selectedStar?.let {
+                        onStarSelectedListener?.onStarSelected(it)
+                        invalidate()
+                    }
                 }
                 return true
             }

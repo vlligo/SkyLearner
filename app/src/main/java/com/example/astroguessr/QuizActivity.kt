@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
@@ -27,6 +28,7 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
     private var currentQuestionIndex = 0
     private var selectedStar: Star? = null
     private lateinit var starRepository: StarRepository
+    private var isFeedbackPhase = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,13 +60,36 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
 
         // Updated click listener with coroutine
         nextButton.setOnClickListener {
-            if (selectedStar == null) {
-                Toast.makeText(this, "Select a star first!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            if (!isFeedbackPhase) {
+                if (selectedStar == null) {
+                    Toast.makeText(this, "Select a star first!", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
-            lifecycleScope.launch {
-                checkAnswer() // Call suspend function
+                val currentQuestion = currentQuiz.questions[currentQuestionIndex]
+                val isCorrect = selectedStar?.id == currentQuestion.targetStarId
+                if (isCorrect) correctAnswers++
+
+                // Highlight correct and selected stars
+                starChart.showFeedback(
+                    correctStarId = currentQuestion.targetStarId,
+                    selectedStarId = selectedStar?.id
+                )
+
+                // Show correctness message
+                val message = if (isCorrect) "Correct!" else "Incorrect. Correct star highlighted."
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+                // Disable interactions during feedback
+                starChart.isEnabled = false
+                nextButton.text = getString(R.string.kontinue)
+                isFeedbackPhase = true
+            } else {
+                starChart.showFeedback(null, null)
+                starChart.isEnabled = true
+                nextButton.text = getString(R.string.check)
+                isFeedbackPhase = false
+
                 if (currentQuestionIndex < currentQuiz.questions.size - 1) {
                     currentQuestionIndex++
                     setupQuestion()
@@ -73,6 +98,7 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
                     finish()
                 }
             }
+
         }
     }
 
@@ -115,15 +141,53 @@ class QuizActivity : AppCompatActivity(), StarChartView.OnStarSelectedListener {
 
     private fun saveProgress() {
         val user = auth.currentUser ?: return
-        val score = (correctAnswers * 100) / currentQuiz.questions.size
-        db.collection("user_progress")
-            .document(user.uid)
-            .set(UserProgress(userId = user.uid, quizScores = mapOf(currentQuiz.id to score)), SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(this, "Progress saved! Score: $score%", Toast.LENGTH_SHORT).show()
+        val newScore = (correctAnswers * 100) / currentQuiz.questions.size
+        val quizId = currentQuiz.id
+        val userProgressRef = db.collection("user_progress").document(user.uid)
+
+        lifecycleScope.launch {
+            try {
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(userProgressRef)
+
+                    val currentScores = (snapshot.get("quizScores") as? Map<String, Long>)
+                        ?.mapValues { it.value.toInt() }
+                        ?: emptyMap()
+
+                    val currentScore = currentScores[quizId] ?: 0
+                    val max = maxOf(newScore, currentScore)
+
+                    if (newScore > currentScore) {
+                        val updatedScores = currentScores.toMutableMap().apply {
+                            put(quizId, max)
+                        }
+                        transaction.set(
+                            userProgressRef,
+                            mapOf("quizScores" to updatedScores.mapValues { it.value.toLong() }),
+                            SetOptions.merge()
+                        )
+                    }
+                    max
+                }.await()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@QuizActivity,
+                        "Score: $newScore%",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@QuizActivity,
+                        "Save failed: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Save failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 }
