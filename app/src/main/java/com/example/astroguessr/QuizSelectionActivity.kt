@@ -31,6 +31,18 @@ class QuizSelectionActivity : AppCompatActivity() {
         loadProgress()
     }
 
+    override fun onResume() {
+        super.onResume()
+        setContentView(R.layout.activity_quiz_selection)
+
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+        starRepository = StarRepository(this)
+        quizManager = QuizManager(starRepository)
+
+        loadProgress()
+    }
+
     private fun loadProgress() {
         val user = auth.currentUser ?: run {
             showQuizzes(emptyList(), emptyMap())
