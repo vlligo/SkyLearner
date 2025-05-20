@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.AstroGuessr" parent="Theme.Material3.DayNight.NoActionBar">
+<resources><style name="Theme.AstroGuessr" parent="Theme.Material3.DayNight.NoActionBar">
+</style>
+    <style name="Theme.AstroGuessr.Quiz" parent="Theme.AstroGuessr">
         <item name="android:windowBackground">@color/black</item>
     </style>
 </resources>
